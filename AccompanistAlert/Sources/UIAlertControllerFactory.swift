@@ -4,7 +4,8 @@ struct UIAlertControllerFactory {
     static func create<Actions>(
         title: String,
         message: String?,
-        actions: () -> TupleView<Actions>
+        actions: () -> TupleView<Actions>,
+        onDismiss: @escaping () -> ()
     ) -> UIAlertController {
         let alertController = UIAlertController(
             title: title,
@@ -23,7 +24,7 @@ struct UIAlertControllerFactory {
             // We are checking the actions supplied to us so we can correctly add those
             // that are supported to the alert controller
             if let button = action as? Button<Text> {
-                let alertAction = makeUIAlertAction(button: button)
+                let alertAction = makeUIAlertAction(button: button, onDismiss: onDismiss)
 
                 alertController.addAction(alertAction)
             }
@@ -36,7 +37,9 @@ struct UIAlertControllerFactory {
             let alertAction = UIAlertAction(
                 title: NSLocalizedString("OK", comment: "Default action"),
                 style: .default,
-                handler: { _ in }
+                handler: { _ in
+                    onDismiss()
+                }
             )
             alertController.addAction(alertAction)
         }
@@ -44,7 +47,7 @@ struct UIAlertControllerFactory {
         return alertController
     }
 
-    static private func makeUIAlertAction(button: Button<Text>) -> UIAlertAction {
+    static private func makeUIAlertAction(button: Button<Text>, onDismiss: @escaping () -> ()) -> UIAlertAction {
         let children = Mirror(reflecting: button).children
         let role   = children.first { $0.label == "role"   }?.value as? ButtonRole
         let action = children.first { $0.label == "action" }?.value as? () -> ()
@@ -65,6 +68,8 @@ struct UIAlertControllerFactory {
             style: actionStyle,
             handler: { _ in
                 action?()
+
+                onDismiss()
             }
         )
     }

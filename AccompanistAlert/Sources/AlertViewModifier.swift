@@ -9,13 +9,11 @@ struct AlertViewModifier<Actions>: ViewModifier {
         ZStack {
             content
 
-            if isPresented.wrappedValue {
-                AlertView(
-                    title: title,
-                    isPresented: isPresented,
-                    actions: actions
-                )
-            }
+            AlertView(
+                title: title,
+                isPresented: isPresented,
+                actions: actions
+            )
         }
     }
 }
