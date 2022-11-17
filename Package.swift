@@ -8,6 +8,10 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
+            name: "AccompanistAlert",
+            targets: ["AccompanistAlert"]
+        ),
+        .library(
             name: "AccompanistCore",
             targets: ["AccompanistCore"]
         )
@@ -22,6 +26,11 @@ let package = Package(
         .target(
             name: "AccompanistCore",
             path: "AccompanistCore/Sources"
+        ),
+        .target(
+            name: "AccompanistAlert",
+            dependencies: ["AccompanistCore"],
+            path: "AccompanistAlert/Sources"
         )
     ]
 )
