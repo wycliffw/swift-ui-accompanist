@@ -21,7 +21,15 @@ struct AlertView<Actions>: UIViewControllerRepresentable {
                 }
             )
 
-            if uiViewController.presentedViewController == nil {
+            if let oldAlertController = uiViewController.presentedViewController as? UIAlertController {
+                // We don't want to dismiss the already presented alert so we update old alert
+                oldAlertController.title = alertController.title
+                oldAlertController.message = alertController.message
+
+                for (index, action) in alertController.actions.enumerated() {
+                    oldAlertController.actions[index].isEnabled = action.isEnabled
+                }
+            } else {
                 DispatchQueue.main.async {
                     uiViewController.present(alertController, animated: true, completion: nil)
                 }
