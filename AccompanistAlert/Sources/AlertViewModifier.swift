@@ -6,14 +6,18 @@ struct AlertViewModifier<Actions>: ViewModifier {
     @ViewBuilder let actions: () -> TupleView<Actions>
 
     func body(content: Content) -> some View {
-        ZStack {
-            content
+        if isPresented.wrappedValue {
+            ZStack {
+                content
 
-            AlertView(
-                title: title,
-                isPresented: isPresented,
-                actions: actions
-            )
+                AlertView(
+                    title: title,
+                    isPresented: isPresented,
+                    actions: actions
+                )
+            }
+        } else {
+            content
         }
     }
 }
