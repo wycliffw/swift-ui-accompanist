@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 
 struct UIAlertControllerFactory {
@@ -27,9 +28,28 @@ struct UIAlertControllerFactory {
                 let alertAction = makeUIAlertAction(button: button, onDismiss: onDismiss)
 
                 alertController.addAction(alertAction)
-            }
+            } else if let textField = action as? TextField<Text> {
+                let children = Mirror(reflecting: textField).children
 
-            // TODO: Allow textfields
+                let text  = children.first(where: { $0.label == "_text" })?.value as? Binding<String>
+                let label = children.first(where: { $0.label == "label" })?.value as? Text
+
+                alertController.addTextField { textField in
+                    textField.text = text?.wrappedValue ?? ""
+                    textField.placeholder = getString(text: label!) ?? ""
+
+                    let cancellable = NotificationCenter.default
+                        .publisher(for: UITextField.textDidChangeNotification, object: textField)
+                        .map { ($0.object as? UITextField)?.text }
+                        .sink { value in
+                            if let text = text, let value = value {
+                                text.wrappedValue = value
+                            }
+                        }
+
+                    objc_setAssociatedObject(textField, "\(UUID())", cancellable, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
+                }
+            }
         }
 
         if alertController.actions.count == 0 {
