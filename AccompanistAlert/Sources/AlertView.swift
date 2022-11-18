@@ -15,13 +15,16 @@ struct AlertView<Actions>: UIViewControllerRepresentable {
             let alertController = UIAlertControllerFactory.create(
                 title: title,
                 message: nil,
-                actions: actions
-            )
-            
-            DispatchQueue.main.async {
-                uiViewController.present(alertController, animated: true, completion: {
+                actions: actions,
+                onDismiss: {
                     self.isPresented.wrappedValue.toggle()
-                })
+                }
+            )
+
+            if uiViewController.presentedViewController == nil {
+                DispatchQueue.main.async {
+                    uiViewController.present(alertController, animated: true, completion: nil)
+                }
             }
         }
     }
