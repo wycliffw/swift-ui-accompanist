@@ -49,6 +49,21 @@ struct UIAlertControllerFactory {
 
                     objc_setAssociatedObject(textField, "\(UUID())", cancellable, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
                 }
+            } else if let modifiedContent = action as? ModifiedContent<Button<Text>, _EnvironmentKeyTransformModifier<Bool>> {
+                let alertAction = makeUIAlertAction(button: modifiedContent.content, onDismiss: onDismiss)
+
+                let children = Mirror(reflecting: modifiedContent.modifier).children
+
+                let keyPath   = children.first { $0.label == "keyPath"   }!.value as! WritableKeyPath<EnvironmentValues, Bool>
+                let transform = children.first { $0.label == "transform" }!.value as! (inout Bool) -> ()
+
+                if keyPath == \.isEnabled {
+                    transform(&alertAction.isEnabled)
+                }
+
+                alertController.addAction(alertAction)
+            } else {
+                print(type(of: action))
             }
         }
 
